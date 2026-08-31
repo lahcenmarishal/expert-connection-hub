@@ -96,21 +96,8 @@ function NeedStepPage() {
         navigate({ to: "/demandes/$id", params: { id } });
         return;
       }
-      const id = await publishRequest(user.id, {
-        service_id: need.service_id,
-        level_id: need.level_id,
-        city_id: need.city_id,
-        mode: need.mode,
-        budget_min: need.budget_min,
-        budget_max: need.budget_max,
-        slots: need.slots,
-        description: need.description ?? "",
-        area: need.area,
-        lat: need.lat,
-        lng: need.lng,
-      });
-      toast.success("🎉 Votre demande a été publiée !");
-      navigate({ to: "/demandes/$id", params: { id } });
+      toast.success("Votre besoin est enregistré. Publiez une demande pour recevoir des propositions.");
+      navigate({ to: "/compte" });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Envoi impossible pour le moment");
     } finally {

@@ -152,7 +152,14 @@ function PendingEmailPage() {
       options: { emailRedirectTo: `${window.location.origin}/verify-email?role=${role}` },
     });
     if (error) {
-      toast.error(error.message);
+      const isRate =
+        (error as { status?: number }).status === 429 ||
+        /rate|seconds/i.test(error.message);
+      toast.error(
+        isRate
+          ? "Trop de demandes d'envoi. Patientez une minute avant de réessayer."
+          : error.message,
+      );
       return;
     }
     toast.success("Email de vérification renvoyé.");

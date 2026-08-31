@@ -170,7 +170,7 @@ function ProProfile() {
                   {p.diplomas && (
                     <>
                       <h3 className={`${p.bio ? "mt-4" : ""} mb-1 font-bold`}>
-                        Diplômes & certifications
+                        Diplômes
                       </h3>
                       <p className="text-sm whitespace-pre-line break-words text-muted-foreground">
                         {p.diplomas}

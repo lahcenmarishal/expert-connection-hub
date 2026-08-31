@@ -117,10 +117,7 @@ function ProOnboarding() {
     hourly_rate: "150",
     experience_years: "3",
     diplomas: "",
-    institutions: "",
     specialty: "",
-    certifications: "",
-    experience_description: "",
   });
   const [slotDraft, setSlotDraft] = useState({ weekday: "1", start: "16:00", end: "20:00" });
   const [docKind, setDocKind] = useState<string>(DOCUMENT_KINDS[0].value);
@@ -149,10 +146,7 @@ function ProOnboarding() {
       hourly_rate: String(Number(pro.hourly_rate ?? 150)),
       experience_years: String(pro.experience_years ?? 0),
       diplomas: pro.diplomas ?? "",
-      institutions: pro.institutions ?? "",
       specialty: pro.specialty ?? "",
-      certifications: pro.certifications ?? "",
-      experience_description: pro.experience_description ?? "",
     }));
     setStep(Math.min(Math.max(pro.onboarding_step ?? 1, 1), ONBOARDING_STEPS.length));
     setHydrated(true);
@@ -397,10 +391,7 @@ function ProOnboarding() {
           {
             experience_years: Number(form.experience_years) || 0,
             diplomas: form.diplomas,
-            institutions: form.institutions,
             specialty: form.specialty,
-            certifications: form.certifications,
-            experience_description: form.experience_description,
           },
           next,
         );
@@ -527,10 +518,7 @@ function ProOnboarding() {
           onboarding_step: ONBOARDING_STEPS.length,
           experience_years: Number(form.experience_years) || 0,
           diplomas: form.diplomas,
-          institutions: form.institutions,
           specialty: form.specialty,
-          certifications: form.certifications,
-          experience_description: form.experience_description,
         })
         .eq("id", pro.id);
       if (error) {
@@ -1001,33 +989,6 @@ function ProOnboarding() {
                   className={input}
                 />
               </label>
-              <label className={label}>
-                Établissement(s)
-                <input
-                  value={form.institutions}
-                  onChange={(e) => setForm({ ...form, institutions: e.target.value })}
-                  maxLength={300}
-                  className={input}
-                />
-              </label>
-              <label className={`${label} sm:col-span-2`}>
-                Certifications
-                <input
-                  value={form.certifications}
-                  onChange={(e) => setForm({ ...form, certifications: e.target.value })}
-                  maxLength={300}
-                  className={input}
-                />
-              </label>
-              <label className={`${label} sm:col-span-2`}>
-                Description de l'expérience d'enseignement
-                <textarea
-                  value={form.experience_description}
-                  onChange={(e) => setForm({ ...form, experience_description: e.target.value })}
-                  maxLength={2000}
-                  className={`${input} h-28`}
-                />
-              </label>
             </div>
           )}
 
@@ -1035,8 +996,14 @@ function ProOnboarding() {
             <div className="mt-4 space-y-4">
               <h3 className="text-base font-bold">Vérifiez votre profil professionnel</h3>
               <p className="text-sm text-muted-foreground">
-                Envoyez vos justificatifs (PDF ou image, {MAX_DOC_SIZE_MB} Mo maximum). Vos documents
-                restent privés : seuls vous et les administrateurs habilités y ont accès.
+                Envoyez votre pièce d'identité et votre diplôme (PDF ou image, {MAX_DOC_SIZE_MB} Mo
+                maximum). Vos documents restent privés : seuls vous et les administrateurs habilités
+                y ont accès.
+              </p>
+              <p className="rounded-xl bg-muted px-4 py-3 text-sm">
+                📄 Pour afficher la mention « Diplôme vérifié » sur votre profil public, vous devez
+                téléverser votre diplôme. La mention apparaît uniquement après validation par un
+                administrateur.
               </p>
               <div className="flex flex-wrap items-center gap-2">
                 <select

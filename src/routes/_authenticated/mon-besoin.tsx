@@ -45,9 +45,9 @@ function needFromValues(values: NeedValues): StudentNeed {
     level_id: values.level || null,
     city_id: values.city || null,
     mode: values.mode,
-    budget_min: num(values.budgetMin),
-    budget_max: num(values.budgetMax),
-    slots: values.slots,
+    budget_min: null,
+    budget_max: null,
+    slots: [],
     description: values.description || null,
     area: values.address || null,
     lat: num(values.lat),
@@ -130,8 +130,8 @@ function NeedStepPage() {
         </h1>
         <p className="mb-8 text-sm text-muted-foreground">
           {target
-            ? `Ces informations seront envoyées directement à ${targetName || "votre professeur"} — et réutilisées pour vos prochaines demandes.`
-            : "Décrivez votre besoin une seule fois : il sera réutilisé à chaque fois que vous demanderez un professeur."}
+            ? `Quelques informations essentielles, envoyées directement à ${targetName || "votre professeur"}.`
+            : "L'essentiel seulement : niveau, matière et lieu du cours. Ces informations seront réutilisées à chaque demande."}
         </p>
 
         <NeedForm
@@ -140,7 +140,6 @@ function NeedStepPage() {
           specialties={ref.data?.specialties ?? []}
           cities={ref.data?.cities ?? []}
           rateRange={rateRange}
-          extended
           title="Votre besoin de cours"
           submitLabel={busy ? "Envoi…" : target ? "Envoyer ma demande" : "Publier ma demande"}
           initial={{

@@ -31,7 +31,7 @@ export function AdminVerifications({ adminId }: { adminId: string | undefined })
       let q = supabase
         .from("professionals")
         .select(
-          "id, display_name, first_name, last_name, phone, hourly_rate, experience_years, diplomas, institutions, specialty, certifications, experience_description, verification_status, admin_message, rejection_reason, onboarding_completed, created_at, verification_documents(id, kind, file_path, status)",
+          "id, display_name, first_name, last_name, phone, hourly_rate, experience_years, diplomas, specialty, verification_status, admin_message, rejection_reason, onboarding_completed, created_at, verification_documents(id, kind, file_path, status)",
         )
         .order("created_at", { ascending: false });
       if (filter !== "all") q = q.eq("verification_status", filter);
@@ -160,20 +160,8 @@ export function AdminVerifications({ adminId }: { adminId: string | undefined })
                   <dd>{p.diplomas || "—"}</dd>
                 </div>
                 <div>
-                  <dt className="font-semibold text-muted-foreground">Établissements</dt>
-                  <dd>{p.institutions || "—"}</dd>
-                </div>
-                <div>
                   <dt className="font-semibold text-muted-foreground">Spécialité</dt>
                   <dd>{p.specialty || "—"}</dd>
-                </div>
-                <div>
-                  <dt className="font-semibold text-muted-foreground">Certifications</dt>
-                  <dd>{p.certifications || "—"}</dd>
-                </div>
-                <div className="sm:col-span-2">
-                  <dt className="font-semibold text-muted-foreground">Expérience</dt>
-                  <dd>{p.experience_description || "—"}</dd>
                 </div>
               </dl>
 

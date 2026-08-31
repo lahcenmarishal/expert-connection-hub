@@ -33,9 +33,6 @@ export const VERIFICATION_TONES: Record<VerificationStatus, string> = {
 export const DOCUMENT_KINDS = [
   { value: "identity", label: "Pièce d'identité" },
   { value: "diploma", label: "Diplôme" },
-  { value: "certificate", label: "Certificat" },
-  { value: "experience", label: "Justificatif d'expérience" },
-  { value: "other", label: "Autre document" },
 ] as const;
 
 export const ALLOWED_DOC_EXTENSIONS = ["pdf", "jpg", "jpeg", "png", "webp"];
@@ -62,7 +59,7 @@ export function completionOf(input: CompletionInput): Record<StepKey, boolean> {
       !!(p?.mode_home || p?.mode_studio || p?.mode_online) &&
       Number(p?.hourly_rate ?? 0) > 0 &&
       input.slotCount > 0,
-    dossier: !!(p?.diplomas || p?.experience_description) && input.documentCount > 0,
+    dossier: !!p?.diplomas && input.documentCount > 0,
   };
 }
 

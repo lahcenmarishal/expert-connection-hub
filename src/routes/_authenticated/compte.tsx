@@ -178,6 +178,7 @@ function ClientSpace() {
               </p>
               <Link
                 to="/publier"
+                search={publishSearch}
                 className="mt-4 inline-block rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-primary-foreground"
               >
                 Publier ma première demande

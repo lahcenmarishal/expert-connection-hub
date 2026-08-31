@@ -1,19 +1,23 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import {
   CalendarCheck,
   ClipboardList,
   MessageSquare,
+  Plus,
   Search,
   Send,
   Sparkles,
+  X,
 } from "lucide-react";
 import { MobileTabBar, SiteFooter, SiteHeader } from "@/components/site";
 import { WorkspaceHero } from "@/components/workspace";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { fetchReferenceData, MODE_LABELS } from "@/lib/marketplace";
+import { fetchReferenceData, formatSlot, MODE_LABELS, type Slot, WEEKDAYS } from "@/lib/marketplace";
+import { publishRequest } from "@/lib/request-draft";
 import { loadStudentNeed, type StudentNeed } from "@/lib/student-need";
 
 export const Route = createFileRoute("/_authenticated/compte")({

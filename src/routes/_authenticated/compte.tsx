@@ -1,18 +1,24 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import {
   CalendarCheck,
   ClipboardList,
   MessageSquare,
+  Plus,
   Search,
   Send,
   Sparkles,
+  X,
 } from "lucide-react";
 import { MobileTabBar, SiteFooter, SiteHeader } from "@/components/site";
 import { WorkspaceHero } from "@/components/workspace";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { fetchReferenceData, MODE_LABELS } from "@/lib/marketplace";
+import { fetchReferenceData, formatSlot, MODE_LABELS, type Slot, WEEKDAYS } from "@/lib/marketplace";
+import { publishRequest } from "@/lib/request-draft";
+import { loadStudentNeed, type StudentNeed } from "@/lib/student-need";
 
 export const Route = createFileRoute("/_authenticated/compte")({
   head: () => ({
@@ -45,6 +51,82 @@ const STATUS_LABELS: Record<string, string> = {
 function ClientSpace() {
   const { user } = useAuth();
   const ref = useQuery({ queryKey: ["reference"], queryFn: fetchReferenceData });
+  const [need, setNeed] = useState<StudentNeed | null>(null);
+
+  useEffect(() => {
+    setNeed(loadStudentNeed());
+  }, []);
+
+  const navigate = useNavigate();
+  const [showPublish, setShowPublish] = useState(false);
+  const [description, setDescription] = useState("");
+  const [slots, setSlots] = useState<Slot[]>([]);
+  const [slotDraft, setSlotDraft] = useState({ weekday: "6", start: "15:00", end: "17:00" });
+  const [publishing, setPublishing] = useState(false);
+
+  const addSlot = () => {
+    const toMin = (t: string) => {
+      const [h, m] = t.split(":");
+      return Number(h) * 60 + Number(m ?? 0);
+    };
+    const slot: Slot = {
+      weekday: Number(slotDraft.weekday),
+      start_min: toMin(slotDraft.start),
+      end_min: toMin(slotDraft.end),
+    };
+    if (slot.end_min <= slot.start_min) return;
+    setSlots((prev) =>
+      prev.some(
+        (s) => s.weekday === slot.weekday && s.start_min === slot.start_min && s.end_min === slot.end_min,
+      )
+        ? prev
+        : [...prev, slot],
+    );
+  };
+
+  const removeSlot = (index: number) => setSlots((prev) => prev.filter((_, i) => i !== index));
+
+  const publishFromAccount = async () => {
+    if (!user || !need) return;
+    if (!need.city_id && need.mode !== "online") {
+      toast.error("Indiquez votre ville dans votre besoin avant de publier.");
+      return;
+    }
+    setPublishing(true);
+    try {
+      const id = await publishRequest(user.id, {
+        service_id: need.service_id,
+        level_id: need.level_id,
+        city_id: need.city_id,
+        mode: need.mode,
+        budget_min: null,
+        budget_max: null,
+        slots,
+        description,
+        area: need.area,
+        lat: need.lat,
+        lng: need.lng,
+      });
+      toast.success("🎉 Votre demande a été publiée !");
+      navigate({ to: "/demandes/$id", params: { id } });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Publication impossible");
+    } finally {
+      setPublishing(false);
+    }
+  };
+
+  const publishSearch = need
+    ? {
+        service: need.service_id || undefined,
+        level: need.level_id || undefined,
+        city: need.city_id || undefined,
+        mode: need.mode,
+        address: need.area || undefined,
+        lat: need.lat ? String(need.lat) : undefined,
+        lng: need.lng ? String(need.lng) : undefined,
+      }
+    : {};
 
   const requests = useQuery({
     queryKey: ["my-requests"],
@@ -96,7 +178,7 @@ function ClientSpace() {
         <WorkspaceHero
           eyebrow="Espace élève"
           title={`Bonjour ${displayName}`}
-          subtitle="Publiez une demande, comparez les propositions des professeurs et gérez vos cours."
+          subtitle="Votre compte est prêt. Publiez une demande pour recevoir plusieurs propositions de professeurs vérifiés."
           stats={[
             { label: "Demandes actives", value: activeCount, Icon: ClipboardList },
             { label: "Propositions reçues", value: proposalsCount, Icon: Send },
@@ -107,6 +189,7 @@ function ClientSpace() {
             <>
               <Link
                 to="/publier"
+                search={publishSearch}
                 className="rounded-full bg-primary px-5 py-2.5 text-sm font-bold text-primary-foreground"
               >
                 Publier une demande
@@ -121,6 +204,150 @@ function ClientSpace() {
             </>
           }
         />
+
+        {!showPublish ? (
+          <section className="rounded-3xl border border-primary/20 bg-gradient-to-br from-primary/10 to-primary/5 p-8 text-center">
+            <h2 className="mb-3 text-2xl font-extrabold tracking-tight md:text-3xl">
+              Publiez votre demande et recevez plusieurs propositions
+            </h2>
+            <p className="mx-auto mb-6 max-w-2xl text-muted-foreground">
+              Votre besoin est déjà enregistré. Ajoutez simplement vos disponibilités et une
+              courte description, puis publiez pour recevoir les propositions des professeurs.
+            </p>
+            {need ? (
+              <button
+                type="button"
+                onClick={() => setShowPublish(true)}
+                className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 font-bold text-primary-foreground"
+              >
+                <Send className="size-4" />
+                Publier ma demande
+              </button>
+            ) : (
+              <Link
+                to="/publier"
+                search={publishSearch}
+                className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 font-bold text-primary-foreground"
+              >
+                <Send className="size-4" />
+                Publier ma demande
+              </Link>
+            )}
+          </section>
+        ) : (
+          <section className="rounded-3xl border border-border bg-card p-6 shadow-sm">
+            <div className="mb-5 flex items-center justify-between gap-3">
+              <h2 className="text-xl font-bold">Publier votre demande</h2>
+              <button
+                type="button"
+                onClick={() => setShowPublish(false)}
+                className="text-sm font-semibold text-muted-foreground hover:text-primary"
+              >
+                Annuler
+              </button>
+            </div>
+
+            {need && (
+              <div className="mb-5 rounded-2xl border border-border bg-muted/40 p-4 text-sm">
+                <p className="font-semibold">Récapitulatif de votre besoin</p>
+                <p className="text-muted-foreground">
+                  {ref.data?.services.find((s) => s.id === need.service_id)?.name ?? "Toutes matières"} ·{" "}
+                  {ref.data?.levels.find((l) => l.id === need.level_id)?.name ?? "—"} ·{" "}
+                  {ref.data?.cities.find((c) => c.id === need.city_id)?.name ?? "—"} ·{" "}
+                  {MODE_LABELS[need.mode]}
+                </p>
+              </div>
+            )}
+
+            <div className="mb-5 space-y-2">
+              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Disponibilités
+              </span>
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-[1fr_auto_auto_auto]">
+                <select
+                  aria-label="Jour"
+                  className="w-full rounded-xl border border-border bg-muted px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary/20"
+                  value={slotDraft.weekday}
+                  onChange={(e) => setSlotDraft((s) => ({ ...s, weekday: e.target.value }))}
+                >
+                  {WEEKDAYS.map((d, i) => (
+                    <option key={d} value={String(i)}>
+                      {d}
+                    </option>
+                  ))}
+                </select>
+                <input
+                  aria-label="Heure de début"
+                  type="time"
+                  className="w-full rounded-xl border border-border bg-muted px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary/20"
+                  value={slotDraft.start}
+                  onChange={(e) => setSlotDraft((s) => ({ ...s, start: e.target.value }))}
+                />
+                <input
+                  aria-label="Heure de fin"
+                  type="time"
+                  className="w-full rounded-xl border border-border bg-muted px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary/20"
+                  value={slotDraft.end}
+                  onChange={(e) => setSlotDraft((s) => ({ ...s, end: e.target.value }))}
+                />
+                <button
+                  type="button"
+                  onClick={addSlot}
+                  className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-secondary px-4 py-3 text-sm font-bold text-secondary-foreground"
+                >
+                  <Plus className="size-4" aria-hidden />
+                  Ajouter
+                </button>
+              </div>
+              {slots.length > 0 && (
+                <ul className="flex flex-wrap gap-2">
+                  {slots.map((s, i) => (
+                    <li
+                      key={`${s.weekday}-${s.start_min}-${s.end_min}`}
+                      className="flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary"
+                    >
+                      {formatSlot(s)}
+                      <button
+                        type="button"
+                        onClick={() => removeSlot(i)}
+                        aria-label={`Retirer ${formatSlot(s)}`}
+                      >
+                        <X className="size-3.5" aria-hidden />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            <div className="mb-6 space-y-1">
+              <label
+                className="text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+                htmlFor="quick-description"
+              >
+                Description de votre besoin
+              </label>
+              <textarea
+                id="quick-description"
+                rows={4}
+                maxLength={1000}
+                className="w-full rounded-xl border border-border bg-muted px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary/20"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Décrivez votre besoin… Exemple : Je cherche un soutien régulier pour ma fille."
+              />
+            </div>
+
+            <button
+              type="button"
+              disabled={publishing}
+              onClick={publishFromAccount}
+              className="w-full rounded-xl bg-primary py-3 font-bold text-primary-foreground disabled:opacity-60"
+            >
+              {publishing ? "Publication…" : "Publier ma demande"}
+            </button>
+          </section>
+        )}
 
         <section className="rounded-3xl border border-border bg-card p-6 shadow-sm">
           <div className="mb-5 flex items-center justify-between gap-3">
@@ -140,6 +367,7 @@ function ClientSpace() {
               </p>
               <Link
                 to="/publier"
+                search={publishSearch}
                 className="mt-4 inline-block rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-primary-foreground"
               >
                 Publier ma première demande

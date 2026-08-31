@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
 import { submitDirectRequest } from "@/lib/marketplace";
 import { CITIES } from "@/lib/cities";
 import { LEVELS } from "@/lib/catalog";

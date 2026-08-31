@@ -117,10 +117,7 @@ function ProOnboarding() {
     hourly_rate: "150",
     experience_years: "3",
     diplomas: "",
-    institutions: "",
     specialty: "",
-    certifications: "",
-    experience_description: "",
   });
   const [slotDraft, setSlotDraft] = useState({ weekday: "1", start: "16:00", end: "20:00" });
   const [docKind, setDocKind] = useState<string>(DOCUMENT_KINDS[0].value);
@@ -149,10 +146,7 @@ function ProOnboarding() {
       hourly_rate: String(Number(pro.hourly_rate ?? 150)),
       experience_years: String(pro.experience_years ?? 0),
       diplomas: pro.diplomas ?? "",
-      institutions: pro.institutions ?? "",
       specialty: pro.specialty ?? "",
-      certifications: pro.certifications ?? "",
-      experience_description: pro.experience_description ?? "",
     }));
     setStep(Math.min(Math.max(pro.onboarding_step ?? 1, 1), ONBOARDING_STEPS.length));
     setHydrated(true);
@@ -397,10 +391,7 @@ function ProOnboarding() {
           {
             experience_years: Number(form.experience_years) || 0,
             diplomas: form.diplomas,
-            institutions: form.institutions,
             specialty: form.specialty,
-            certifications: form.certifications,
-            experience_description: form.experience_description,
           },
           next,
         );
@@ -527,10 +518,7 @@ function ProOnboarding() {
           onboarding_step: ONBOARDING_STEPS.length,
           experience_years: Number(form.experience_years) || 0,
           diplomas: form.diplomas,
-          institutions: form.institutions,
           specialty: form.specialty,
-          certifications: form.certifications,
-          experience_description: form.experience_description,
         })
         .eq("id", pro.id);
       if (error) {

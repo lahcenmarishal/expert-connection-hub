@@ -7,6 +7,7 @@ import { SiteHeader } from "@/components/site";
 import { OnboardingProgress } from "@/components/onboarding-progress";
 import { tryPublishPendingDraft } from "@/lib/request-draft";
 import { resumeClientFlow } from "@/lib/student-need";
+import { resolveAccountRole } from "@/lib/pending-role";
 
 const RESEND_KEY = "profinder.last_verification_send";
 const PENDING_ROLE_KEY = "profinder.pending_role";
@@ -59,7 +60,7 @@ function PendingEmailPage() {
       toast.message("Ouvrez le lien reçu par email pour activer votre session automatiquement.");
       return;
     }
-    if (pendingRole() === "pro") {
+    if ((await resolveAccountRole(pendingRole())) === "pro") {
       navigate({ to: "/pro/inscription" });
       return;
     }
@@ -144,10 +145,11 @@ function PendingEmailPage() {
     if (cooldown > 0 || !newEmail) return;
     localStorage.setItem(RESEND_KEY, String(Date.now()));
     setCooldown(COOLDOWN_S);
+    const role = await resolveAccountRole(pendingRole());
     const { error } = await supabase.auth.resend({
       type: "signup",
       email: newEmail,
-      options: { emailRedirectTo: `${window.location.origin}/verify-email?role=${pendingRole()}` },
+      options: { emailRedirectTo: `${window.location.origin}/verify-email?role=${role}` },
     });
     if (error) {
       toast.error(error.message);

@@ -6,11 +6,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader } from "@/components/site";
 import { publishPendingDraft } from "@/lib/request-draft";
 import { resumeClientFlow } from "@/lib/student-need";
+import { resolveAccountRole } from "@/lib/pending-role";
 
 
 type State = "checking" | "verified" | "already" | "expired" | "invalid";
-
-const PENDING_ROLE_KEY = "profinder.pending_role";
 
 export const Route = createFileRoute("/verify-email")({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -42,21 +41,13 @@ function VerifyEmailPage() {
   const [state, setState] = useState<State>("checking");
   const [email, setEmail] = useState("");
 
-  const roleAfterVerification = () => {
-    try {
-      return localStorage.getItem(PENDING_ROLE_KEY) === "pro" ? "pro" : search.role;
-    } catch {
-      return search.role;
-    }
-  };
-
   const continueAfterVerification = async () => {
     const { data } = await supabase.auth.getSession();
     if (!data.session) {
       toast.message("Session en cours d'activation. Réouvrez le lien de vérification si nécessaire.");
       return;
     }
-    if (roleAfterVerification() === "pro") {
+    if ((await resolveAccountRole(search.role)) === "pro") {
       navigate({ to: "/pro/inscription" });
       return;
     }
@@ -187,10 +178,11 @@ function VerifyEmailPage() {
   const resend = async () => {
     const target = email || window.prompt("Votre adresse email") || "";
     if (!target) return;
+    const role = await resolveAccountRole(search.role);
     const { error } = await supabase.auth.resend({
       type: "signup",
       email: target,
-      options: { emailRedirectTo: `${window.location.origin}/verify-email?role=${roleAfterVerification()}` },
+      options: { emailRedirectTo: `${window.location.origin}/verify-email?role=${role}` },
     });
     if (error) {
       toast.error(error.message);

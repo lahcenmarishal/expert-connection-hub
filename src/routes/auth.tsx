@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { SiteHeader } from "@/components/site";
 import { tryPublishPendingDraft } from "@/lib/request-draft";
+import { resumeClientFlow } from "@/lib/student-need";
 
 type Role = "client" | "pro";
 

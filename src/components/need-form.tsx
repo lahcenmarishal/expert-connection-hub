@@ -383,121 +383,104 @@ export function NeedForm({
           </div>
         )}
 
-        {extended && !minimal && (
-          <>
-            <div className="space-y-2">
-              <span className={label}>Disponibilités (plusieurs créneaux possibles)</span>
-              <div className="grid grid-cols-1 gap-2 sm:grid-cols-[1fr_auto_auto_auto]">
-                <select
-                  aria-label="Jour"
-                  className={field}
-                  value={slotDraft.weekday}
-                  onChange={(e) => setSlotDraft((s) => ({ ...s, weekday: e.target.value }))}
-                >
-                  {WEEKDAYS.map((d, i) => (
-                    <option key={d} value={String(i)}>
-                      {d}
-                    </option>
-                  ))}
-                </select>
-                <input
-                  aria-label="Heure de début"
-                  type="time"
-                  className={field}
-                  value={slotDraft.start}
-                  onChange={(e) => setSlotDraft((s) => ({ ...s, start: e.target.value }))}
-                />
-                <input
-                  aria-label="Heure de fin"
-                  type="time"
-                  className={field}
-                  value={slotDraft.end}
-                  onChange={(e) => setSlotDraft((s) => ({ ...s, end: e.target.value }))}
-                />
-                <button
-                  type="button"
-                  onClick={addSlot}
-                  className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-secondary px-4 py-3 text-sm font-bold text-secondary-foreground"
-                >
-                  <Plus className="size-4" aria-hidden />
-                  Ajouter
-                </button>
-              </div>
-              {values.slots.length > 0 && (
-                <ul className="flex flex-wrap gap-2">
-                  {values.slots.map((s, i) => (
-                    <li
-                      key={`${s.weekday}-${s.start_min}-${s.end_min}`}
-                      className="flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary"
-                    >
-                      {formatSlot(s)}
-                      <button
-                        type="button"
-                        onClick={() => removeSlot(i)}
-                        aria-label={`Retirer ${formatSlot(s)}`}
-                      >
-                        <X className="size-3.5" aria-hidden />
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-1">
-                <label className={label} htmlFor="need-budget-min">
-                  Budget minimum (DH/h)
-                </label>
-                <input
-                  id="need-budget-min"
-                  type="number"
-                  min={0}
-                  max={5000}
-                  className={field}
-                  value={values.budgetMin}
-                  onChange={(e) => set("budgetMin", e.target.value)}
-                />
-              </div>
-              <div className="space-y-1">
-                <label className={label} htmlFor="need-budget-max">
-                  Budget maximum (DH/h)
-                </label>
-                <input
-                  id="need-budget-max"
-                  type="number"
-                  min={0}
-                  max={5000}
-                  className={field}
-                  value={values.budgetMax}
-                  onChange={(e) => {
-                    set("budgetMax", e.target.value);
-                    set("budget", e.target.value);
-                  }}
-                />
-              </div>
-            </div>
-
-            <div className="space-y-1">
-              <label className={label} htmlFor="need-description">
-                Description
-              </label>
-              <textarea
-                id="need-description"
-                rows={4}
-                maxLength={1000}
+        {(extended || withSlots) && !minimal && (
+          <div className="space-y-2">
+            <span className={label}>Disponibilités (plusieurs créneaux possibles)</span>
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-[1fr_auto_auto_auto]">
+              <select
+                aria-label="Jour"
                 className={field}
-                value={values.description}
-                onChange={(e) => set("description", e.target.value)}
-                placeholder={
-                  "Décrivez votre besoin…\nExemple : Je cherche un professeur de maths pour ma fille en 3e, à Agadir, deux fois par semaine."
-                }
+                value={slotDraft.weekday}
+                onChange={(e) => setSlotDraft((s) => ({ ...s, weekday: e.target.value }))}
+              >
+                {WEEKDAYS.map((d, i) => (
+                  <option key={d} value={String(i)}>
+                    {d}
+                  </option>
+                ))}
+              </select>
+              <input
+                aria-label="Heure de début"
+                type="time"
+                className={field}
+                value={slotDraft.start}
+                onChange={(e) => setSlotDraft((s) => ({ ...s, start: e.target.value }))}
               />
+              <input
+                aria-label="Heure de fin"
+                type="time"
+                className={field}
+                value={slotDraft.end}
+                onChange={(e) => setSlotDraft((s) => ({ ...s, end: e.target.value }))}
+              />
+              <button
+                type="button"
+                onClick={addSlot}
+                className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-secondary px-4 py-3 text-sm font-bold text-secondary-foreground"
+              >
+                <Plus className="size-4" aria-hidden />
+                Ajouter
+              </button>
             </div>
-          </>
+            {values.slots.length > 0 && (
+              <ul className="flex flex-wrap gap-2">
+                {values.slots.map((s, i) => (
+                  <li
+                    key={`${s.weekday}-${s.start_min}-${s.end_min}`}
+                    className="flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary"
+                  >
+                    {formatSlot(s)}
+                    <button
+                      type="button"
+                      onClick={() => removeSlot(i)}
+                      aria-label={`Retirer ${formatSlot(s)}`}
+                    >
+                      <X className="size-3.5" aria-hidden />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         )}
 
-        {minimal && (
+        {extended && !minimal && (
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-1">
+              <label className={label} htmlFor="need-budget-min">
+                Budget minimum (DH/h)
+              </label>
+              <input
+                id="need-budget-min"
+                type="number"
+                min={0}
+                max={5000}
+                className={field}
+                value={values.budgetMin}
+                onChange={(e) => set("budgetMin", e.target.value)}
+              />
+            </div>
+            <div className="space-y-1">
+              <label className={label} htmlFor="need-budget-max">
+                Budget maximum (DH/h)
+              </label>
+              <input
+                id="need-budget-max"
+                type="number"
+                min={0}
+                max={5000}
+                className={field}
+                value={values.budgetMax}
+                onChange={(e) => {
+                  set("budgetMax", e.target.value);
+                  set("budget", e.target.value);
+                }}
+              />
+            </div>
+          </div>
+        )}
+
+        {(extended || withDescription || minimal) && (
           <div className="space-y-1">
             <label className={label} htmlFor="need-description">
               Description
@@ -510,7 +493,9 @@ export function NeedForm({
               value={values.description}
               onChange={(e) => set("description", e.target.value)}
               placeholder={
-                "Décrivez votre besoin…\nExemple : Je cherche un soutien scolaire régulier pour ma fille."
+                extended
+                  ? "Décrivez votre besoin…\nExemple : Je cherche un professeur de maths pour ma fille en 3e, à Agadir, deux fois par semaine."
+                  : "Décrivez votre besoin…\nExemple : Je cherche un soutien scolaire régulier pour ma fille."
               }
             />
           </div>

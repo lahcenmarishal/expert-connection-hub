@@ -57,6 +57,65 @@ function ClientSpace() {
     setNeed(loadStudentNeed());
   }, []);
 
+  const navigate = useNavigate();
+  const [showPublish, setShowPublish] = useState(false);
+  const [description, setDescription] = useState("");
+  const [slots, setSlots] = useState<Slot[]>([]);
+  const [slotDraft, setSlotDraft] = useState({ weekday: "6", start: "15:00", end: "17:00" });
+  const [publishing, setPublishing] = useState(false);
+
+  const addSlot = () => {
+    const toMin = (t: string) => {
+      const [h, m] = t.split(":");
+      return Number(h) * 60 + Number(m ?? 0);
+    };
+    const slot: Slot = {
+      weekday: Number(slotDraft.weekday),
+      start_min: toMin(slotDraft.start),
+      end_min: toMin(slotDraft.end),
+    };
+    if (slot.end_min <= slot.start_min) return;
+    setSlots((prev) =>
+      prev.some(
+        (s) => s.weekday === slot.weekday && s.start_min === slot.start_min && s.end_min === slot.end_min,
+      )
+        ? prev
+        : [...prev, slot],
+    );
+  };
+
+  const removeSlot = (index: number) => setSlots((prev) => prev.filter((_, i) => i !== index));
+
+  const publishFromAccount = async () => {
+    if (!user || !need) return;
+    if (!need.city_id && need.mode !== "online") {
+      toast.error("Indiquez votre ville dans votre besoin avant de publier.");
+      return;
+    }
+    setPublishing(true);
+    try {
+      const id = await publishRequest(user.id, {
+        service_id: need.service_id,
+        level_id: need.level_id,
+        city_id: need.city_id,
+        mode: need.mode,
+        budget_min: null,
+        budget_max: null,
+        slots,
+        description,
+        area: need.area,
+        lat: need.lat,
+        lng: need.lng,
+      });
+      toast.success("🎉 Votre demande a été publiée !");
+      navigate({ to: "/demandes/$id", params: { id } });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Publication impossible");
+    } finally {
+      setPublishing(false);
+    }
+  };
+
   const publishSearch = need
     ? {
         service: need.service_id || undefined,

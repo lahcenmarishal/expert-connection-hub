@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import {
   CalendarCheck,
   ClipboardList,
@@ -13,6 +14,7 @@ import { WorkspaceHero } from "@/components/workspace";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { fetchReferenceData, MODE_LABELS } from "@/lib/marketplace";
+import { loadStudentNeed, type StudentNeed } from "@/lib/student-need";
 
 export const Route = createFileRoute("/_authenticated/compte")({
   head: () => ({

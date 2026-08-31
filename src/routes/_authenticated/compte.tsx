@@ -142,6 +142,24 @@ function ClientSpace() {
           }
         />
 
+        <section className="rounded-3xl border border-primary/20 bg-gradient-to-br from-primary/10 to-primary/5 p-8 text-center">
+          <h2 className="mb-3 text-2xl font-extrabold tracking-tight md:text-3xl">
+            Publiez votre demande et recevez plusieurs propositions
+          </h2>
+          <p className="mx-auto mb-6 max-w-2xl text-muted-foreground">
+            Votre besoin est déjà enregistré. Il ne vous reste qu'à le publier pour que les
+            professeurs vérifiés puissent vous répondre.
+          </p>
+          <Link
+            to="/publier"
+            search={publishSearch}
+            className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 font-bold text-primary-foreground"
+          >
+            <Send className="size-4" />
+            Publier ma demande
+          </Link>
+        </section>
+
         <section className="rounded-3xl border border-border bg-card p-6 shadow-sm">
           <div className="mb-5 flex items-center justify-between gap-3">
             <h2 className="text-lg font-bold">Mes dernières demandes</h2>

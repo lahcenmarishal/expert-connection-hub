@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { SiteHeader } from "@/components/site";
 import { tryPublishPendingDraft } from "@/lib/request-draft";
+import { resumeClientFlow } from "@/lib/student-need";
 
 type Role = "client" | "pro";
 
@@ -56,6 +57,16 @@ function AuthPage() {
     if (requestId) {
       toast.success("🎉 Votre demande a été publiée !");
       navigate({ to: "/demandes/$id", params: { id: requestId } });
+      return;
+    }
+    const next = await resumeClientFlow(userId);
+    if (next.kind === "request") {
+      toast.success("🎉 Votre demande a été envoyée au professeur.");
+      navigate({ to: "/demandes/$id", params: { id: next.id } });
+      return;
+    }
+    if (next.kind === "need") {
+      navigate({ to: "/mon-besoin" });
       return;
     }
     navigate({ to: "/demandes" });

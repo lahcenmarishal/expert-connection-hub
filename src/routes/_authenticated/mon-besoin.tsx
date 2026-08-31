@@ -140,7 +140,6 @@ function NeedStepPage() {
           specialties={ref.data?.specialties ?? []}
           cities={ref.data?.cities ?? []}
           rateRange={rateRange}
-          extended
           title="Votre besoin de cours"
           submitLabel={busy ? "Envoi…" : target ? "Envoyer ma demande" : "Publier ma demande"}
           initial={{

@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader } from "@/components/site";
 import { OnboardingProgress } from "@/components/onboarding-progress";
 import { tryPublishPendingDraft } from "@/lib/request-draft";
+import { resumeClientFlow } from "@/lib/student-need";
 
 const RESEND_KEY = "profinder.last_verification_send";
 const PENDING_ROLE_KEY = "profinder.pending_role";
@@ -68,7 +69,13 @@ function PendingEmailPage() {
       navigate({ to: "/demandes/$id", params: { id: requestId } });
       return;
     }
-    navigate({ to: "/demandes" });
+    const next = await resumeClientFlow(data.session.user.id);
+    if (next.kind === "request") {
+      toast.success("🎉 Votre demande a été envoyée au professeur.");
+      navigate({ to: "/demandes/$id", params: { id: next.id } });
+      return;
+    }
+    navigate({ to: next.kind === "need" ? "/mon-besoin" : "/demandes" });
   };
 
   const checkVerification = async (showMessage = false) => {
@@ -153,7 +160,7 @@ function PendingEmailPage() {
     <div className="min-h-screen bg-background font-sans text-foreground">
       <SiteHeader />
       <main className="mx-auto max-w-lg px-4 py-14">
-        <OnboardingProgress current={1} />
+        {pendingRole() === "pro" && <OnboardingProgress current={1} />}
         <div className="mt-8 rounded-3xl border border-border bg-card p-8 text-center shadow-panel">
           <MailCheck className="mx-auto h-10 w-10 text-primary" aria-hidden />
           <h1 className="mt-4 text-2xl font-extrabold tracking-tight">
@@ -211,7 +218,7 @@ function PendingEmailPage() {
 
         <p className="mt-6 text-center text-sm text-muted-foreground">
           Email déjà confirmé ?{" "}
-          <Link to="/auth" search={{ mode: "signin", role: "pro" }} className="font-semibold text-primary">
+          <Link to="/auth" search={{ mode: "signin", role: pendingRole() }} className="font-semibold text-primary">
             Se connecter
           </Link>
         </p>

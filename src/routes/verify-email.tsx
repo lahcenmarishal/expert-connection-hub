@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader } from "@/components/site";
 import { publishPendingDraft } from "@/lib/request-draft";
+import { resumeClientFlow } from "@/lib/student-need";
 
 
 type State = "checking" | "verified" | "already" | "expired" | "invalid";
@@ -69,7 +70,13 @@ function VerifyEmailPage() {
     } catch {
       /* la demande pourra être republiée depuis /publier */
     }
-    navigate({ to: "/demandes" });
+    const next = await resumeClientFlow(data.session.user.id);
+    if (next.kind === "request") {
+      toast.success("🎉 Votre demande a été envoyée au professeur.");
+      navigate({ to: "/demandes/$id", params: { id: next.id } });
+      return;
+    }
+    navigate({ to: next.kind === "need" ? "/mon-besoin" : "/demandes" });
   };
 
 

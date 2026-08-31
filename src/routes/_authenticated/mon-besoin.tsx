@@ -47,7 +47,7 @@ function needFromValues(values: NeedValues): StudentNeed {
     mode: values.mode,
     budget_min: null,
     budget_max: null,
-    slots: [],
+    slots: values.slots,
     description: values.description || null,
     area: values.address || null,
     lat: num(values.lat),

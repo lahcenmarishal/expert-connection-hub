@@ -113,12 +113,12 @@ function NeedStepPage() {
           Étape 2 sur 2
         </p>
         <h1 className="mb-2 mt-1 text-3xl font-extrabold tracking-tight">
-          Exprimez votre besoin
+          {target ? "Envoyer ma demande" : "Finaliser mon compte"}
         </h1>
         <p className="mb-8 text-sm text-muted-foreground">
           {target
             ? `Quelques informations essentielles, envoyées directement à ${targetName || "votre professeur"}.`
-            : "L'essentiel seulement : niveau, matière et lieu du cours. Ces informations seront réutilisées à chaque demande."}
+            : "Indiquez le niveau, la matière, le lieu et vos disponibilités. Ces informations seront réutilisées quand vous publierez une demande."}
         </p>
 
         <NeedForm
@@ -127,8 +127,10 @@ function NeedStepPage() {
           specialties={ref.data?.specialties ?? []}
           cities={ref.data?.cities ?? []}
           rateRange={rateRange}
+          withSlots
+          withDescription
           title="Votre besoin de cours"
-          submitLabel={busy ? "Envoi…" : target ? "Envoyer ma demande" : "Publier ma demande"}
+          submitLabel={busy ? "Enregistrement…" : target ? "Envoyer ma demande" : "Enregistrer mon besoin"}
           initial={{
             service: draft?.service_id ?? "",
             level: draft?.level_id ?? "",
@@ -138,6 +140,7 @@ function NeedStepPage() {
             address: draft?.area ?? "",
             lat: draft?.lat == null ? "" : String(draft.lat),
             lng: draft?.lng == null ? "" : String(draft.lng),
+            slots: draft?.slots ?? [],
           }}
           onSubmit={(values) => void onSubmit(values)}
         />

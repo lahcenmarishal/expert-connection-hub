@@ -20,6 +20,7 @@ import { Route as VerifyEmailRouteImport } from './routes/verify-email'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedCompteRouteImport } from './routes/_authenticated/compte'
 import { Route as AuthenticatedMessagesRouteImport } from './routes/_authenticated/messages'
+import { Route as AuthenticatedMonBesoinRouteImport } from './routes/_authenticated/mon-besoin'
 import { Route as ProfesseursIndexRouteImport } from './routes/professeurs.index'
 import { Route as ProfesseursIdRouteImport } from './routes/professeurs.$id'
 import { Route as AuthenticatedDemandesIndexRouteImport } from './routes/_authenticated/demandes.index'
@@ -82,6 +83,11 @@ const AuthenticatedMessagesRoute = AuthenticatedMessagesRouteImport.update({
   path: '/messages',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedMonBesoinRoute = AuthenticatedMonBesoinRouteImport.update({
+  id: '/mon-besoin',
+  path: '/mon-besoin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const ProfesseursIndexRoute = ProfesseursIndexRouteImport.update({
   id: '/professeurs/',
   path: '/professeurs/',
@@ -132,6 +138,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRoute
   '/compte': typeof AuthenticatedCompteRoute
   '/messages': typeof AuthenticatedMessagesRoute
+  '/mon-besoin': typeof AuthenticatedMonBesoinRoute
   '/professeurs/$id': typeof ProfesseursIdRoute
   '/professeurs/': typeof ProfesseursIndexRoute
   '/demandes/$id': typeof AuthenticatedDemandesIdRoute
@@ -151,6 +158,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AuthenticatedAdminRoute
   '/compte': typeof AuthenticatedCompteRoute
   '/messages': typeof AuthenticatedMessagesRoute
+  '/mon-besoin': typeof AuthenticatedMonBesoinRoute
   '/professeurs/$id': typeof ProfesseursIdRoute
   '/professeurs': typeof ProfesseursIndexRoute
   '/demandes/$id': typeof AuthenticatedDemandesIdRoute
@@ -172,6 +180,7 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/compte': typeof AuthenticatedCompteRoute
   '/_authenticated/messages': typeof AuthenticatedMessagesRoute
+  '/_authenticated/mon-besoin': typeof AuthenticatedMonBesoinRoute
   '/professeurs/$id': typeof ProfesseursIdRoute
   '/professeurs/': typeof ProfesseursIndexRoute
   '/_authenticated/demandes/$id': typeof AuthenticatedDemandesIdRoute
@@ -193,6 +202,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/compte'
     | '/messages'
+    | '/mon-besoin'
     | '/professeurs/$id'
     | '/professeurs/'
     | '/demandes/$id'
@@ -212,6 +222,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/compte'
     | '/messages'
+    | '/mon-besoin'
     | '/professeurs/$id'
     | '/professeurs'
     | '/demandes/$id'
@@ -232,6 +243,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/_authenticated/compte'
     | '/_authenticated/messages'
+    | '/_authenticated/mon-besoin'
     | '/professeurs/$id'
     | '/professeurs/'
     | '/_authenticated/demandes/$id'
@@ -333,6 +345,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMessagesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/mon-besoin': {
+      id: '/_authenticated/mon-besoin'
+      path: '/mon-besoin'
+      fullPath: '/mon-besoin'
+      preLoaderRoute: typeof AuthenticatedMonBesoinRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/professeurs/': {
       id: '/professeurs/'
       path: '/professeurs'
@@ -389,6 +408,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedCompteRoute: typeof AuthenticatedCompteRoute
   AuthenticatedMessagesRoute: typeof AuthenticatedMessagesRoute
+  AuthenticatedMonBesoinRoute: typeof AuthenticatedMonBesoinRoute
   AuthenticatedDemandesIdRoute: typeof AuthenticatedDemandesIdRoute
   AuthenticatedProDemandesRoute: typeof AuthenticatedProDemandesRoute
   AuthenticatedProInscriptionRoute: typeof AuthenticatedProInscriptionRoute
@@ -400,6 +420,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedCompteRoute: AuthenticatedCompteRoute,
   AuthenticatedMessagesRoute: AuthenticatedMessagesRoute,
+  AuthenticatedMonBesoinRoute: AuthenticatedMonBesoinRoute,
   AuthenticatedDemandesIdRoute: AuthenticatedDemandesIdRoute,
   AuthenticatedProDemandesRoute: AuthenticatedProDemandesRoute,
   AuthenticatedProInscriptionRoute: AuthenticatedProInscriptionRoute,

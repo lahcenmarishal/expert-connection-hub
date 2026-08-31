@@ -138,3 +138,26 @@ export async function sendNeedToProfessional(
     contact,
   });
 }
+
+/**
+ * Où envoyer le client après connexion / vérification d'email :
+ * - demande envoyée automatiquement si un professeur est ciblé et le besoin connu ;
+ * - sinon étape 2 (expression du besoin) tant qu'aucun besoin n'est enregistré.
+ */
+export async function resumeClientFlow(
+  userId: string,
+): Promise<{ kind: "request"; id: string } | { kind: "need" } | { kind: "home" }> {
+  const target = loadPendingProTarget();
+  const need = await resolveStudentNeed(userId);
+  if (target && need) {
+    try {
+      const id = await sendNeedToProfessional(userId, target, need);
+      clearPendingProTarget();
+      return { kind: "request", id };
+    } catch {
+      return { kind: "need" };
+    }
+  }
+  if (target || !need) return { kind: "need" };
+  return { kind: "home" };
+}

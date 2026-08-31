@@ -115,7 +115,7 @@ function ClientSpace() {
         <WorkspaceHero
           eyebrow="Espace élève"
           title={`Bonjour ${displayName}`}
-          subtitle="Publiez une demande, comparez les propositions des professeurs et gérez vos cours."
+          subtitle="Votre compte est prêt. Publiez une demande pour recevoir plusieurs propositions de professeurs vérifiés."
           stats={[
             { label: "Demandes actives", value: activeCount, Icon: ClipboardList },
             { label: "Propositions reçues", value: proposalsCount, Icon: Send },

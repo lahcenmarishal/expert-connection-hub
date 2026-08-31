@@ -43,6 +43,8 @@ export function NeedForm({
   extended = false,
   contact = false,
   minimal = false,
+  withSlots = false,
+  withDescription = false,
   title = "De quoi avez-vous besoin ?",
   submitLabel = "Trouver un professeur",
   onSubmit,

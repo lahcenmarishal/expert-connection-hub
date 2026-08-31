@@ -205,23 +205,149 @@ function ClientSpace() {
           }
         />
 
-        <section className="rounded-3xl border border-primary/20 bg-gradient-to-br from-primary/10 to-primary/5 p-8 text-center">
-          <h2 className="mb-3 text-2xl font-extrabold tracking-tight md:text-3xl">
-            Publiez votre demande et recevez plusieurs propositions
-          </h2>
-          <p className="mx-auto mb-6 max-w-2xl text-muted-foreground">
-            Votre besoin est déjà enregistré. Il ne vous reste qu'à le publier pour que les
-            professeurs vérifiés puissent vous répondre.
-          </p>
-          <Link
-            to="/publier"
-            search={publishSearch}
-            className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 font-bold text-primary-foreground"
-          >
-            <Send className="size-4" />
-            Publier ma demande
-          </Link>
-        </section>
+        {!showPublish ? (
+          <section className="rounded-3xl border border-primary/20 bg-gradient-to-br from-primary/10 to-primary/5 p-8 text-center">
+            <h2 className="mb-3 text-2xl font-extrabold tracking-tight md:text-3xl">
+              Publiez votre demande et recevez plusieurs propositions
+            </h2>
+            <p className="mx-auto mb-6 max-w-2xl text-muted-foreground">
+              Votre besoin est déjà enregistré. Ajoutez simplement vos disponibilités et une
+              courte description, puis publiez pour recevoir les propositions des professeurs.
+            </p>
+            {need ? (
+              <button
+                type="button"
+                onClick={() => setShowPublish(true)}
+                className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 font-bold text-primary-foreground"
+              >
+                <Send className="size-4" />
+                Publier ma demande
+              </button>
+            ) : (
+              <Link
+                to="/publier"
+                search={publishSearch}
+                className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 font-bold text-primary-foreground"
+              >
+                <Send className="size-4" />
+                Publier ma demande
+              </Link>
+            )}
+          </section>
+        ) : (
+          <section className="rounded-3xl border border-border bg-card p-6 shadow-sm">
+            <div className="mb-5 flex items-center justify-between gap-3">
+              <h2 className="text-xl font-bold">Publier votre demande</h2>
+              <button
+                type="button"
+                onClick={() => setShowPublish(false)}
+                className="text-sm font-semibold text-muted-foreground hover:text-primary"
+              >
+                Annuler
+              </button>
+            </div>
+
+            {need && (
+              <div className="mb-5 rounded-2xl border border-border bg-muted/40 p-4 text-sm">
+                <p className="font-semibold">Récapitulatif de votre besoin</p>
+                <p className="text-muted-foreground">
+                  {ref.data?.services.find((s) => s.id === need.service_id)?.name ?? "Toutes matières"} ·{" "}
+                  {ref.data?.levels.find((l) => l.id === need.level_id)?.name ?? "—"} ·{" "}
+                  {ref.data?.cities.find((c) => c.id === need.city_id)?.name ?? "—"} ·{" "}
+                  {MODE_LABELS[need.mode]}
+                </p>
+              </div>
+            )}
+
+            <div className="mb-5 space-y-2">
+              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Disponibilités
+              </span>
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-[1fr_auto_auto_auto]">
+                <select
+                  aria-label="Jour"
+                  className="w-full rounded-xl border border-border bg-muted px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary/20"
+                  value={slotDraft.weekday}
+                  onChange={(e) => setSlotDraft((s) => ({ ...s, weekday: e.target.value }))}
+                >
+                  {WEEKDAYS.map((d, i) => (
+                    <option key={d} value={String(i)}>
+                      {d}
+                    </option>
+                  ))}
+                </select>
+                <input
+                  aria-label="Heure de début"
+                  type="time"
+                  className="w-full rounded-xl border border-border bg-muted px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary/20"
+                  value={slotDraft.start}
+                  onChange={(e) => setSlotDraft((s) => ({ ...s, start: e.target.value }))}
+                />
+                <input
+                  aria-label="Heure de fin"
+                  type="time"
+                  className="w-full rounded-xl border border-border bg-muted px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary/20"
+                  value={slotDraft.end}
+                  onChange={(e) => setSlotDraft((s) => ({ ...s, end: e.target.value }))}
+                />
+                <button
+                  type="button"
+                  onClick={addSlot}
+                  className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-secondary px-4 py-3 text-sm font-bold text-secondary-foreground"
+                >
+                  <Plus className="size-4" aria-hidden />
+                  Ajouter
+                </button>
+              </div>
+              {slots.length > 0 && (
+                <ul className="flex flex-wrap gap-2">
+                  {slots.map((s, i) => (
+                    <li
+                      key={`${s.weekday}-${s.start_min}-${s.end_min}`}
+                      className="flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary"
+                    >
+                      {formatSlot(s)}
+                      <button
+                        type="button"
+                        onClick={() => removeSlot(i)}
+                        aria-label={`Retirer ${formatSlot(s)}`}
+                      >
+                        <X className="size-3.5" aria-hidden />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            <div className="mb-6 space-y-1">
+              <label
+                className="text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+                htmlFor="quick-description"
+              >
+                Description de votre besoin
+              </label>
+              <textarea
+                id="quick-description"
+                rows={4}
+                maxLength={1000}
+                className="w-full rounded-xl border border-border bg-muted px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary/20"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Décrivez votre besoin… Exemple : Je cherche un soutien régulier pour ma fille."
+              />
+            </div>
+
+            <button
+              type="button"
+              disabled={publishing}
+              onClick={publishFromAccount}
+              className="w-full rounded-xl bg-primary py-3 font-bold text-primary-foreground disabled:opacity-60"
+            >
+              {publishing ? "Publication…" : "Publier ma demande"}
+            </button>
+          </section>
+        )}
 
         <section className="rounded-3xl border border-border bg-card p-6 shadow-sm">
           <div className="mb-5 flex items-center justify-between gap-3">

@@ -58,6 +58,16 @@ function AuthPage() {
       navigate({ to: "/demandes/$id", params: { id: requestId } });
       return;
     }
+    const next = await resumeClientFlow(userId);
+    if (next.kind === "request") {
+      toast.success("🎉 Votre demande a été envoyée au professeur.");
+      navigate({ to: "/demandes/$id", params: { id: next.id } });
+      return;
+    }
+    if (next.kind === "need") {
+      navigate({ to: "/mon-besoin" });
+      return;
+    }
     navigate({ to: "/demandes" });
   };
 

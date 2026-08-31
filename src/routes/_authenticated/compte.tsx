@@ -47,6 +47,23 @@ const STATUS_LABELS: Record<string, string> = {
 function ClientSpace() {
   const { user } = useAuth();
   const ref = useQuery({ queryKey: ["reference"], queryFn: fetchReferenceData });
+  const [need, setNeed] = useState<StudentNeed | null>(null);
+
+  useEffect(() => {
+    setNeed(loadStudentNeed());
+  }, []);
+
+  const publishSearch = need
+    ? {
+        service: need.service_id || undefined,
+        level: need.level_id || undefined,
+        city: need.city_id || undefined,
+        mode: need.mode,
+        address: need.area || undefined,
+        lat: need.lat ? String(need.lat) : undefined,
+        lng: need.lng ? String(need.lng) : undefined,
+      }
+    : {};
 
   const requests = useQuery({
     queryKey: ["my-requests"],

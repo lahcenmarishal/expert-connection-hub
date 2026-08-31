@@ -7,7 +7,7 @@ import { NeedForm, type NeedValues } from "@/components/need-form";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { DEFAULT_RATE_RANGE, fetchReferenceData, type RateRange } from "@/lib/marketplace";
-import { publishRequest, clearRequestDraft, loadRequestDraft } from "@/lib/request-draft";
+import { clearRequestDraft, loadRequestDraft } from "@/lib/request-draft";
 import {
   clearPendingProTarget,
   loadPendingProTarget,

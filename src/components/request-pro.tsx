@@ -87,24 +87,6 @@ export function RequestProButton({
     }
   }
 
-  /** Ouvre le formulaire en pré-remplissant les infos du compte connecté. */
-  async function openForm() {
-    setStep("form");
-    if (!user) return;
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("full_name, phone, city")
-      .eq("id", user.id)
-      .maybeSingle();
-    setFullName(
-      profile?.full_name || (user.user_metadata?.["full_name"] as string | undefined) || "",
-    );
-    setPhone(profile?.phone ?? "");
-    const cityMatch = CITIES.find(
-      (c) => c.name.toLowerCase() === (profile?.city ?? "").toLowerCase(),
-    );
-    if (cityMatch) setCityId(cityMatch.id);
-  }
 
   async function sendQuick(e: React.FormEvent) {
     e.preventDefault();

@@ -280,6 +280,13 @@ function ProSpace() {
               </Link>
             )}
           </div>
+          {verificationStatus !== "verified" && (
+            <p className="mt-4 rounded-xl bg-muted px-4 py-3 text-sm">
+              📄 Téléversez votre diplôme (avec votre pièce d'identité) pour que la mention
+              « Diplôme vérifié » apparaisse sur votre profil public. Elle s'affiche uniquement
+              après validation par un administrateur.
+            </p>
+          )}
           {!onboardingDone && <OnboardingProgress current={onboardingStep} className="mt-4" />}
         </section>
 

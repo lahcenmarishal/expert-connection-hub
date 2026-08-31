@@ -9,6 +9,12 @@ import { cyclesOf } from "@/lib/marketplace";
 import { CitySelect } from "@/components/city-select";
 import { AddressPicker, type AddressValue } from "@/components/address-picker";
 import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "@tanstack/react-router";
+import {
+  resolveStudentNeed,
+  savePendingProTarget,
+  sendNeedToProfessional,
+} from "@/lib/student-need";
 
 type Mode = "home" | "studio" | "online";
 
@@ -42,6 +48,7 @@ export function RequestProButton({
   label?: string;
 }) {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [step, setStep] = useState<"idle" | "choice" | "form" | "done">("idle");
   const [sending, setSending] = useState(false);
   const [fullName, setFullName] = useState("");
@@ -54,6 +61,31 @@ export function RequestProButton({
 
   const cycles = cyclesOf(LEVELS);
   const levelsForCycle = cycle ? LEVELS.filter((l) => l.cycle === cycle) : [];
+
+  /**
+   * Client connecté : la demande part directement avec ses informations de
+   * compte et le besoin exprimé à l'inscription — aucun formulaire.
+   */
+  async function sendAsClient() {
+    if (!user) return;
+    setSending(true);
+    try {
+      const need = await resolveStudentNeed(user.id);
+      if (!need) {
+        savePendingProTarget({ id: pro.id, category_id: pro.category_id });
+        toast.message("Complétez votre besoin une seule fois pour envoyer vos demandes en un clic.");
+        navigate({ to: "/mon-besoin" });
+        return;
+      }
+      await sendNeedToProfessional(user.id, { id: pro.id, category_id: pro.category_id }, need);
+      toast.success("Demande envoyée au professeur");
+      setStep("done");
+    } catch {
+      toast.error("Envoi impossible pour le moment");
+    } finally {
+      setSending(false);
+    }
+  }
 
   /** Ouvre le formulaire en pré-remplissant les infos du compte connecté. */
   async function openForm() {
@@ -154,7 +186,7 @@ export function RequestProButton({
         <button
           type="button"
           disabled={sending}
-          onClick={() => (user ? void openForm() : setStep("choice"))}
+          onClick={() => (user ? void sendAsClient() : setStep("choice"))}
           className={
             className ||
             "w-full rounded-xl bg-primary px-4 py-3 text-sm font-bold text-primary-foreground hover:opacity-90"
@@ -177,6 +209,7 @@ export function RequestProButton({
               <Link
                 to="/auth"
                 search={{ mode: "signup", role: "client" }}
+                onClick={() => savePendingProTarget({ id: pro.id, category_id: pro.category_id })}
                 className="rounded-xl bg-primary px-4 py-3 text-center text-sm font-bold text-primary-foreground hover:opacity-90"
               >
                 Créer un compte élève / parent

@@ -61,6 +61,10 @@ export function NeedForm({
   contact?: boolean;
   /** Formulaire allégé : contact en haut, pas de niveau/classe/matière/budget/créneaux. */
   minimal?: boolean;
+  /** Affiche la section disponibilités (créneaux) sans le budget. */
+  withSlots?: boolean;
+  /** Affiche la zone de description du besoin. */
+  withDescription?: boolean;
   title?: string;
   submitLabel?: string;
   onSubmit?: (values: NeedValues) => void;

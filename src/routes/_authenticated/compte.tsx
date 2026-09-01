@@ -129,11 +129,13 @@ function ClientSpace() {
     : {};
 
   const requests = useQuery({
-    queryKey: ["my-requests"],
+    queryKey: ["my-requests", user?.id],
+    enabled: !!user,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("requests")
         .select("*, proposals(id)")
+        .eq("client_id", user!.id)
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data ?? [];
@@ -144,7 +146,10 @@ function ClientSpace() {
     queryKey: ["my-bookings", user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const { data } = await supabase.from("bookings").select("id, status, scheduled_at");
+      const { data } = await supabase
+        .from("bookings")
+        .select("id, status, scheduled_at")
+        .eq("client_id", user!.id);
       return data ?? [];
     },
   });
@@ -156,10 +161,12 @@ function ClientSpace() {
       const { count } = await supabase
         .from("messages")
         .select("id", { count: "exact", head: true })
+        .eq("recipient_id", user!.id)
         .is("read_at", null);
       return count ?? 0;
     },
   });
+
 
   const list = requests.data ?? [];
   const proposalsCount = list.reduce(

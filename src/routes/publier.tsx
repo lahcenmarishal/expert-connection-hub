@@ -239,10 +239,11 @@ function PublishPage() {
                 lat: search.lat ?? (need?.lat == null ? "" : String(need.lat)),
                 lng: search.lng ?? (need?.lng == null ? "" : String(need.lng)),
               }}
-
-            onSubmit={(values) => void onNeedSubmit(values)}
-          />
+              onSubmit={(values) => void onNeedSubmit(values)}
+            />
+          </>
         ) : (
+
           <form
             onSubmit={createAccount}
             className="space-y-4 rounded-3xl border border-border bg-card p-6 shadow-panel"

@@ -1,7 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
+import { Sparkles } from "lucide-react";
 import { SiteFooter, SiteHeader } from "@/components/site";
 import { NeedForm, type NeedValues } from "@/components/need-form";
 import { useAuth } from "@/hooks/useAuth";
@@ -13,7 +14,14 @@ import {
   saveRequestDraft,
   type RequestDraft,
 } from "@/lib/request-draft";
-import { DEFAULT_RATE_RANGE, fetchReferenceData, type RateRange } from "@/lib/marketplace";
+import {
+  DEFAULT_RATE_RANGE,
+  fetchReferenceData,
+  formatSlot,
+  MODE_LABELS,
+  type RateRange,
+} from "@/lib/marketplace";
+import { loadStudentNeed, type StudentNeed } from "@/lib/student-need";
 
 type Search = {
   service?: string | undefined;
@@ -86,6 +94,34 @@ function PublishPage() {
   const { user } = useAuth();
   const ref = useQuery({ queryKey: ["reference"], queryFn: fetchReferenceData });
   const rateRange = (ref.data?.settings["rate_range"] as RateRange) ?? DEFAULT_RATE_RANGE;
+
+  const [need, setNeed] = useState<StudentNeed | null>(null);
+  useEffect(() => {
+    setNeed(loadStudentNeed());
+  }, []);
+
+  const recapItems = useMemo(() => {
+    if (!need) return [];
+    return [
+      {
+        label: "Niveau",
+        value: ref.data?.levels.find((l) => l.id === need.level_id)?.name ?? "À préciser",
+      },
+      {
+        label: "Matière",
+        value: ref.data?.services.find((s) => s.id === need.service_id)?.name ?? "Toutes matières",
+      },
+      {
+        label: "Type de cours",
+        value: MODE_LABELS[need.mode] ?? "—",
+      },
+      {
+        label: "Lieu",
+        value:
+          need.area ?? ref.data?.cities.find((c) => c.id === need.city_id)?.name ?? "En ligne",
+      },
+    ];
+  }, [need, ref.data]);
 
   const [draft, setDraft] = useState<RequestDraft | null>(null);
   const [busy, setBusy] = useState(false);
@@ -183,29 +219,68 @@ function PublishPage() {
         </p>
 
         {!draft ? (
-          <NeedForm
-            services={ref.data?.services ?? []}
-            levels={ref.data?.levels ?? []}
-            specialties={ref.data?.specialties ?? []}
-            cities={ref.data?.cities ?? []}
-            rateRange={rateRange}
-            extended
-            title="Votre besoin de cours"
-            submitLabel={user ? "Publier ma demande" : "Continuer"}
-            initial={{
-              service: search.service ?? "",
-              level: search.level ?? "",
-              city: search.city ?? "",
-              mode: search.mode ?? "home",
-              budget: search.budget ?? "",
-              budgetMax: search.budget ?? "",
-              address: search.address ?? "",
-              lat: search.lat ?? "",
-              lng: search.lng ?? "",
-            }}
-            onSubmit={(values) => void onNeedSubmit(values)}
-          />
+          <>
+            {need && (
+              <section className="mb-6 overflow-hidden rounded-3xl border border-primary/20 bg-gradient-to-br from-primary/10 via-card to-card shadow-panel">
+                <div className="flex items-center gap-2 border-b border-primary/15 px-6 py-4">
+                  <Sparkles className="size-4 text-primary" aria-hidden />
+                  <p className="text-sm font-bold">Récapitulatif de votre profil</p>
+                  <span className="ml-auto rounded-full bg-primary/10 px-3 py-1 text-[11px] font-semibold text-primary">
+                    Pré-rempli
+                  </span>
+                </div>
+                <dl className="grid grid-cols-2 gap-px bg-border/60 sm:grid-cols-4">
+                  {recapItems.map((item) => (
+                    <div key={item.label} className="bg-card px-4 py-3">
+                      <dt className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                        {item.label}
+                      </dt>
+                      <dd className="mt-0.5 text-sm font-semibold">{item.value}</dd>
+                    </div>
+                  ))}
+                </dl>
+                {need.slots.length > 0 && (
+                  <div className="flex flex-wrap gap-2 border-t border-border/60 px-6 py-4">
+                    {need.slots.map((s) => (
+                      <span
+                        key={`${s.weekday}-${s.start_min}-${s.end_min}`}
+                        className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary"
+                      >
+                        {formatSlot(s)}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </section>
+            )}
+            <NeedForm
+              key={need ? "need" : "empty"}
+              services={ref.data?.services ?? []}
+              levels={ref.data?.levels ?? []}
+              specialties={ref.data?.specialties ?? []}
+              cities={ref.data?.cities ?? []}
+              rateRange={rateRange}
+              extended
+              title="Votre besoin de cours"
+              submitLabel={user ? "Publier ma demande" : "Continuer"}
+              initial={{
+                service: search.service ?? need?.service_id ?? "",
+                level: search.level ?? need?.level_id ?? "",
+                city: search.city ?? need?.city_id ?? "",
+                mode: search.mode ?? need?.mode ?? "home",
+                budget: search.budget ?? "",
+                budgetMax: search.budget ?? "",
+                description: need?.description ?? "",
+                slots: need?.slots ?? [],
+                address: search.address ?? need?.area ?? "",
+                lat: search.lat ?? (need?.lat == null ? "" : String(need.lat)),
+                lng: search.lng ?? (need?.lng == null ? "" : String(need.lng)),
+              }}
+              onSubmit={(values) => void onNeedSubmit(values)}
+            />
+          </>
         ) : (
+
           <form
             onSubmit={createAccount}
             className="space-y-4 rounded-3xl border border-border bg-card p-6 shadow-panel"

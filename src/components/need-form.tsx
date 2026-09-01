@@ -384,8 +384,15 @@ export function NeedForm({
         )}
 
         {(extended || withSlots) && !minimal && (
-          <div className="space-y-2">
-            <span className={label}>Disponibilités (plusieurs créneaux possibles)</span>
+          <div className="space-y-3 rounded-2xl border border-border bg-muted/30 p-4">
+            <div>
+              <span className={label}>Vos disponibilités</span>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Choisissez un jour et une plage horaire, puis cliquez sur « Ajouter ». Vous pouvez
+                ajouter plusieurs créneaux.
+              </p>
+            </div>
+
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-[1fr_auto_auto_auto]">
               <select
                 aria-label="Jour"
@@ -422,7 +429,11 @@ export function NeedForm({
                 Ajouter
               </button>
             </div>
-            {values.slots.length > 0 && (
+            {values.slots.length === 0 ? (
+              <p className="rounded-xl border border-dashed border-border bg-card px-3 py-2 text-xs text-muted-foreground">
+                Aucun créneau ajouté pour le moment.
+              </p>
+            ) : (
               <ul className="flex flex-wrap gap-2">
                 {values.slots.map((s, i) => (
                   <li
@@ -441,6 +452,7 @@ export function NeedForm({
                 ))}
               </ul>
             )}
+
           </div>
         )}
 

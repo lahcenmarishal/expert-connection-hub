@@ -1,7 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
+import { Sparkles } from "lucide-react";
 import { SiteFooter, SiteHeader } from "@/components/site";
 import { NeedForm, type NeedValues } from "@/components/need-form";
 import { useAuth } from "@/hooks/useAuth";
@@ -13,7 +14,14 @@ import {
   saveRequestDraft,
   type RequestDraft,
 } from "@/lib/request-draft";
-import { DEFAULT_RATE_RANGE, fetchReferenceData, type RateRange } from "@/lib/marketplace";
+import {
+  DEFAULT_RATE_RANGE,
+  fetchReferenceData,
+  formatSlot,
+  MODE_LABELS,
+  type RateRange,
+} from "@/lib/marketplace";
+import { loadStudentNeed, type StudentNeed } from "@/lib/student-need";
 
 type Search = {
   service?: string | undefined;
@@ -86,6 +94,34 @@ function PublishPage() {
   const { user } = useAuth();
   const ref = useQuery({ queryKey: ["reference"], queryFn: fetchReferenceData });
   const rateRange = (ref.data?.settings["rate_range"] as RateRange) ?? DEFAULT_RATE_RANGE;
+
+  const [need, setNeed] = useState<StudentNeed | null>(null);
+  useEffect(() => {
+    setNeed(loadStudentNeed());
+  }, []);
+
+  const recapItems = useMemo(() => {
+    if (!need) return [];
+    return [
+      {
+        label: "Niveau",
+        value: ref.data?.levels.find((l) => l.id === need.level_id)?.name ?? "À préciser",
+      },
+      {
+        label: "Matière",
+        value: ref.data?.services.find((s) => s.id === need.service_id)?.name ?? "Toutes matières",
+      },
+      {
+        label: "Type de cours",
+        value: MODE_LABELS[need.mode] ?? "—",
+      },
+      {
+        label: "Lieu",
+        value:
+          need.area ?? ref.data?.cities.find((c) => c.id === need.city_id)?.name ?? "En ligne",
+      },
+    ];
+  }, [need, ref.data]);
 
   const [draft, setDraft] = useState<RequestDraft | null>(null);
   const [busy, setBusy] = useState(false);

@@ -254,6 +254,7 @@ function PublishPage() {
               </section>
             )}
             <NeedForm
+              key={need ? "need" : "empty"}
               services={ref.data?.services ?? []}
               levels={ref.data?.levels ?? []}
               specialties={ref.data?.specialties ?? []}

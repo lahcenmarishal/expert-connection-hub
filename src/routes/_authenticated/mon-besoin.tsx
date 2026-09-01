@@ -118,7 +118,7 @@ function NeedStepPage() {
         <p className="mb-8 text-sm text-muted-foreground">
           {target
             ? `Quelques informations essentielles, envoyées directement à ${targetName || "votre professeur"}.`
-            : "Indiquez le niveau, la matière, le lieu et vos disponibilités. Ces informations seront réutilisées quand vous publierez une demande."}
+            : "Indiquez simplement le niveau, la matière et le lieu. Ces informations seront réutilisées quand vous publierez une demande."}
         </p>
 
         <NeedForm
@@ -127,7 +127,6 @@ function NeedStepPage() {
           specialties={ref.data?.specialties ?? []}
           cities={ref.data?.cities ?? []}
           rateRange={rateRange}
-          withSlots
           withDescription
           title="Votre besoin de cours"
           submitLabel={busy ? "Enregistrement…" : target ? "Envoyer ma demande" : "Enregistrer mon besoin"}

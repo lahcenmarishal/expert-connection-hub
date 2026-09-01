@@ -429,7 +429,11 @@ export function NeedForm({
                 Ajouter
               </button>
             </div>
-            {values.slots.length > 0 && (
+            {values.slots.length === 0 ? (
+              <p className="rounded-xl border border-dashed border-border bg-card px-3 py-2 text-xs text-muted-foreground">
+                Aucun créneau ajouté pour le moment.
+              </p>
+            ) : (
               <ul className="flex flex-wrap gap-2">
                 {values.slots.map((s, i) => (
                   <li
@@ -448,6 +452,7 @@ export function NeedForm({
                 ))}
               </ul>
             )}
+
           </div>
         )}
 
